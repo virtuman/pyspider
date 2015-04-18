@@ -132,8 +132,18 @@ def connect_database(url):
         else:
             raise LookupError
     elif engine == 'local':
-        scripts = url.split('//', 1)[1].split(',')
+        paths = url.split('//', 1)[1].split(',')
         if dbtype == 'projectdb':
+            scripts = []
+            for _path in paths:
+                if os.path.isdir(_path):
+                    for f in os.listdir(_path):
+                        pathname = os.path.join(_path, f)
+                        scripts.append(pathname)
+                else:
+                    scripts.append(_path)
+            del paths
+
             from .local.projectdb import ProjectDB
             return ProjectDB(scripts)
         else:
